@@ -8,12 +8,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def dl_model(link, model_name, dir_name):
-    with requests.get(f"{link}{model_name}") as r:
+    with requests.get(f"{link}{model_name}", stream=True) as r:  # <-- NOTICE stream=True
         r.raise_for_status()
         os.makedirs(os.path.dirname(dir_name / model_name), exist_ok=True)
         with open(dir_name / model_name, "wb") as f:
             for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
+                if chunk:  # <-- also important, skip keep-alive chunks
+                    f.write(chunk)
 
 
 if __name__ == "__main__":
